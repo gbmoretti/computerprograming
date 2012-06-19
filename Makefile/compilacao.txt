@@ -1,0 +1,8 @@
+Linha de comando para compilacao do programa:
+
+> gcc -o makefile makefile.c -Wall
+
+
+Para rodar:
+
+> makefile

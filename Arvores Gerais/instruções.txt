@@ -1,0 +1,5 @@
+Para compilar:
+> gcc -o main main.c libarvore.a -Wall -pedantic
+
+Para rodar:
+> main < in

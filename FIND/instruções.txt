@@ -1,0 +1,5 @@
+Para compilar:
+> gcc -o find find.c libconio_v3.2.a -Wall -pedantic
+
+Para rodar:
+> find [diretorio inicial] [filtro de arquivo] <palavra que deve conter o arquivo>

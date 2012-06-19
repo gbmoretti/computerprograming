@@ -1,0 +1,5 @@
+Para compilar:
+> gcc -o main main.c mainlib.a -Wall -pedantic
+
+Para executar:
+> main < arquivo_de_entrada

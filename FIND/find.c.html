@@ -1,0 +1,248 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/1999/REC-html401-19991224/strict.dtd">
+<html>
+<head>
+<META http-equiv=Content-Type content="text/html; charset=windows-1252">
+<title>Exported from Notepad++</title>
+<style type="text/css">
+span {
+	font-family: 'Courier New';
+	font-size: 10pt;
+	color: #000000;
+}
+.sc0 {
+}
+.sc1 {
+	color: #008000;
+}
+.sc2 {
+	color: #008000;
+}
+.sc4 {
+	color: #FF8000;
+}
+.sc5 {
+	font-weight: bold;
+	color: #0000FF;
+}
+.sc6 {
+	color: #808080;
+}
+.sc7 {
+	color: #808080;
+}
+.sc9 {
+	color: #804000;
+}
+.sc10 {
+	font-weight: bold;
+	color: #000080;
+}
+.sc11 {
+}
+.sc16 {
+	color: #8000FF;
+}
+</style>
+</head>
+<body>
+<div style="float: left; white-space: pre; line-height: 1; background: #FFFFFF; "><span class="sc1">/* Programa Raiz
+    Descrição: Programa que procura recursivamente por um arquivo no computador. Ele pode receber até 3 argumentos. 
+    O primeiro, com o diretório inicial da busca (argumento obrigatório). O segundo contendo o nome do arquivo (esse argumento suporta o uso de
+    caracteres coringa (? e *). E o terceiro contendo uma string que deve ser encontrada dentro do arquivo.
+    O programa primeiro varre recursivamente todas as subpastas contidas no diretorio inicial da pesquisa, depois procura por arquivos 
+    que se encaixem no filtro setado no 2o argumento, e quando encontra um arquivo ele varre esse arquivo procurando pela string setada 
+    no 3o argumento, quando encontra a string no arquivo o programa imprime a linha. Depois de todo o processo concluído é mostrada a quantidade
+    de arquivos analisadas e de pastas percorridas.
+    
+    Programador: Guilherme Burille Moretti
+    RGM: 17710
+    Data da última modificação: 21/05/2010 
+*/</span><span class="sc0">
+
+</span><span class="sc9">#include &lt;stdlib.h&gt; </span><span class="sc1">/* exit() */</span><span class="sc0">
+</span><span class="sc9">#include &lt;stdio.h&gt;  </span><span class="sc1">/* printf() */</span><span class="sc0">
+</span><span class="sc9">#include &lt;io.h&gt;     </span><span class="sc1">/* _findfirst(), _findnext(), estrutura _finddata  */</span><span class="sc0">
+</span><span class="sc9">#include &lt;strings.h&gt; </span><span class="sc1">/* strcpy(), strlen(), strcpy() */</span><span class="sc0">
+</span><span class="sc9">#include "conio_v3.1.h" </span><span class="sc1">/* wherey(), gotoxy() */</span><span class="sc0">
+
+</span><span class="sc16">void</span><span class="sc0"> </span><span class="sc11">find</span><span class="sc10">(</span><span class="sc16">char</span><span class="sc0"> </span><span class="sc10">*,</span><span class="sc0"> </span><span class="sc16">char</span><span class="sc0"> </span><span class="sc10">*,</span><span class="sc0"> </span><span class="sc16">char</span><span class="sc0"> </span><span class="sc10">*,</span><span class="sc16">int</span><span class="sc0"> </span><span class="sc10">*,</span><span class="sc0"> </span><span class="sc16">int</span><span class="sc0"> </span><span class="sc10">*);</span><span class="sc0"> </span><span class="sc1">/* Funcao recursiva que percorre o diretorio (e os subdiretorios) */</span><span class="sc0">
+</span><span class="sc16">void</span><span class="sc0"> </span><span class="sc11">printPalavra</span><span class="sc10">(</span><span class="sc16">char</span><span class="sc0"> </span><span class="sc10">*,</span><span class="sc0"> </span><span class="sc16">char</span><span class="sc0"> </span><span class="sc10">*);</span><span class="sc0"> </span><span class="sc1">/* Funcao que procura por uma string dentro de um arquivo e imprime a linha onde existe aquela string */</span><span class="sc0">
+</span><span class="sc16">int</span><span class="sc0"> </span><span class="sc11">contaPalavra</span><span class="sc10">(</span><span class="sc16">char</span><span class="sc0"> </span><span class="sc10">*,</span><span class="sc0"> </span><span class="sc16">char</span><span class="sc0"> </span><span class="sc10">*);</span><span class="sc0"> </span><span class="sc1">/* Funcao que conta quantas linhas a string existe dentro do arquivo */</span><span class="sc0">
+</span><span class="sc16">void</span><span class="sc0"> </span><span class="sc11">dir_raiz</span><span class="sc10">(</span><span class="sc16">char</span><span class="sc0"> </span><span class="sc10">*);</span><span class="sc0"> </span><span class="sc1">/* Funcao para saber qual o diretorio raiz do programa */</span><span class="sc0">
+
+</span><span class="sc16">int</span><span class="sc0"> </span><span class="sc11">main</span><span class="sc0"> </span><span class="sc10">(</span><span class="sc16">int</span><span class="sc0"> </span><span class="sc11">argc</span><span class="sc10">,</span><span class="sc0"> </span><span class="sc16">char</span><span class="sc0"> </span><span class="sc10">*</span><span class="sc11">argv</span><span class="sc10">[])</span><span class="sc0"> </span><span class="sc10">{</span><span class="sc0">
+    </span><span class="sc16">int</span><span class="sc0"> </span><span class="sc11">conta_arqs</span><span class="sc0"> </span><span class="sc10">=</span><span class="sc0"> </span><span class="sc4">0</span><span class="sc10">,</span><span class="sc0"> </span><span class="sc11">conta_pastas</span><span class="sc0"> </span><span class="sc10">=</span><span class="sc0"> </span><span class="sc4">0</span><span class="sc10">;</span><span class="sc0"> </span><span class="sc1">/* Variaveis que guardarao a quantidade de arquivos e pastas analisadas */</span><span class="sc0">
+    </span><span class="sc16">char</span><span class="sc0"> </span><span class="sc11">diretorio</span><span class="sc10">[</span><span class="sc4">200</span><span class="sc10">];</span><span class="sc0"> </span><span class="sc1">/* Variavel que guardara o diretorio em que a pesquisa deve iniciar */</span><span class="sc0">
+
+    </span><span class="sc11">system</span><span class="sc10">(</span><span class="sc6">"cls"</span><span class="sc10">);</span><span class="sc0">
+    
+    </span><span class="sc1">/* Se o diretorio em que a pesquisa for iniciar for igual a '.', guarda em diretorio o diretorio raiz do programa */</span><span class="sc0">
+    </span><span class="sc5">if</span><span class="sc10">(</span><span class="sc11">argc</span><span class="sc0"> </span><span class="sc10">&gt;</span><span class="sc0"> </span><span class="sc4">1</span><span class="sc10">)</span><span class="sc0"> </span><span class="sc10">{</span><span class="sc0">
+        </span><span class="sc5">if</span><span class="sc10">(</span><span class="sc11">strcmp</span><span class="sc10">(</span><span class="sc11">argv</span><span class="sc10">[</span><span class="sc4">1</span><span class="sc10">],</span><span class="sc6">"."</span><span class="sc10">)</span><span class="sc0"> </span><span class="sc10">==</span><span class="sc0"> </span><span class="sc4">0</span><span class="sc10">)</span><span class="sc0"> </span><span class="sc10">{</span><span class="sc0">
+            </span><span class="sc11">dir_raiz</span><span class="sc10">(</span><span class="sc11">diretorio</span><span class="sc10">);</span><span class="sc0">
+        </span><span class="sc10">}</span><span class="sc5">else</span><span class="sc0"> </span><span class="sc10">{</span><span class="sc0">
+            </span><span class="sc11">strcpy</span><span class="sc10">(</span><span class="sc11">diretorio</span><span class="sc10">,</span><span class="sc11">argv</span><span class="sc10">[</span><span class="sc4">1</span><span class="sc10">]);</span><span class="sc0">
+        </span><span class="sc10">}</span><span class="sc0">
+    </span><span class="sc10">}</span><span class="sc0">
+    
+    </span><span class="sc1">/* Tratando os argumentos */</span><span class="sc0">
+    </span><span class="sc5">switch</span><span class="sc0"> </span><span class="sc10">(</span><span class="sc11">argc</span><span class="sc10">)</span><span class="sc0"> </span><span class="sc10">{</span><span class="sc0">
+        </span><span class="sc5">case</span><span class="sc0"> </span><span class="sc4">2</span><span class="sc10">:</span><span class="sc0">
+            </span><span class="sc11">printf</span><span class="sc10">(</span><span class="sc6">"Procurando em %s\n\n"</span><span class="sc10">,</span><span class="sc11">diretorio</span><span class="sc10">);</span><span class="sc0">
+            </span><span class="sc11">find</span><span class="sc10">(</span><span class="sc11">diretorio</span><span class="sc10">,</span><span class="sc6">"*.*"</span><span class="sc10">,</span><span class="sc6">""</span><span class="sc10">,&amp;</span><span class="sc11">conta_arqs</span><span class="sc10">,&amp;</span><span class="sc11">conta_pastas</span><span class="sc10">);</span><span class="sc0">
+            </span><span class="sc5">break</span><span class="sc10">;</span><span class="sc0">
+        </span><span class="sc5">case</span><span class="sc0"> </span><span class="sc4">3</span><span class="sc10">:</span><span class="sc0">
+            </span><span class="sc11">printf</span><span class="sc10">(</span><span class="sc6">"Procurando em %s, utilizando o filtro %s\n\n"</span><span class="sc10">,</span><span class="sc11">diretorio</span><span class="sc10">,</span><span class="sc11">argv</span><span class="sc10">[</span><span class="sc4">2</span><span class="sc10">]);</span><span class="sc0">
+            </span><span class="sc11">find</span><span class="sc10">(</span><span class="sc11">diretorio</span><span class="sc10">,</span><span class="sc11">argv</span><span class="sc10">[</span><span class="sc4">2</span><span class="sc10">],</span><span class="sc6">""</span><span class="sc10">,&amp;</span><span class="sc11">conta_arqs</span><span class="sc10">,&amp;</span><span class="sc11">conta_pastas</span><span class="sc10">);</span><span class="sc0">
+            </span><span class="sc5">break</span><span class="sc10">;</span><span class="sc0">
+        </span><span class="sc5">case</span><span class="sc0"> </span><span class="sc4">4</span><span class="sc10">:</span><span class="sc0">
+            </span><span class="sc11">printf</span><span class="sc10">(</span><span class="sc6">"Procurando em %s arquivos contendo \"%s\", utilizando o filtro %s\n\n"</span><span class="sc10">,</span><span class="sc11">diretorio</span><span class="sc10">,</span><span class="sc11">argv</span><span class="sc10">[</span><span class="sc4">3</span><span class="sc10">],</span><span class="sc11">argv</span><span class="sc10">[</span><span class="sc4">2</span><span class="sc10">]);</span><span class="sc0">
+            </span><span class="sc11">find</span><span class="sc10">(</span><span class="sc11">diretorio</span><span class="sc10">,</span><span class="sc11">argv</span><span class="sc10">[</span><span class="sc4">2</span><span class="sc10">],</span><span class="sc11">argv</span><span class="sc10">[</span><span class="sc4">3</span><span class="sc10">],&amp;</span><span class="sc11">conta_arqs</span><span class="sc10">,&amp;</span><span class="sc11">conta_pastas</span><span class="sc10">);</span><span class="sc0">
+            </span><span class="sc5">break</span><span class="sc10">;</span><span class="sc0">
+        </span><span class="sc5">default</span><span class="sc10">:</span><span class="sc0">
+            </span><span class="sc11">printf</span><span class="sc10">(</span><span class="sc6">"Erro nos argumentos. Maneira correta: find [diretorio inicial] &lt;filtro de arquivo&gt; &lt;palavra que deve conter o arquivo&gt; (%d)\n"</span><span class="sc10">,</span><span class="sc11">argc</span><span class="sc10">);</span><span class="sc0">
+            </span><span class="sc11">exit</span><span class="sc10">(</span><span class="sc4">1</span><span class="sc10">);</span><span class="sc0">
+    </span><span class="sc10">}</span><span class="sc0">
+        
+    </span><span class="sc5">if</span><span class="sc10">(</span><span class="sc11">conta_arqs</span><span class="sc0"> </span><span class="sc10">&gt;</span><span class="sc0"> </span><span class="sc4">0</span><span class="sc10">)</span><span class="sc0"> </span><span class="sc10">{</span><span class="sc0">
+        </span><span class="sc11">gotoxy</span><span class="sc10">(</span><span class="sc4">1</span><span class="sc10">,</span><span class="sc11">wherey</span><span class="sc10">()-</span><span class="sc4">1</span><span class="sc10">);</span><span class="sc0">
+        </span><span class="sc11">printf</span><span class="sc10">(</span><span class="sc6">"\nForam analisados %d arquivos em %d pastas                               "</span><span class="sc10">,</span><span class="sc11">conta_arqs</span><span class="sc10">,</span><span class="sc11">conta_pastas</span><span class="sc10">);</span><span class="sc0">
+    </span><span class="sc10">}</span><span class="sc5">else</span><span class="sc0"> </span><span class="sc10">{</span><span class="sc0">
+        </span><span class="sc11">gotoxy</span><span class="sc10">(</span><span class="sc4">1</span><span class="sc10">,</span><span class="sc11">wherey</span><span class="sc10">()-</span><span class="sc4">1</span><span class="sc10">);</span><span class="sc0">
+        </span><span class="sc11">printf</span><span class="sc10">(</span><span class="sc6">"\nForam analisadas %d pastas e nenhum arquivo foi encontrado.\n                                       "</span><span class="sc10">,</span><span class="sc11">conta_pastas</span><span class="sc10">);</span><span class="sc0">
+    </span><span class="sc10">}</span><span class="sc0">
+    </span><span class="sc5">return</span><span class="sc0"> </span><span class="sc4">0</span><span class="sc10">;</span><span class="sc0">
+</span><span class="sc10">}</span><span class="sc0">
+
+</span><span class="sc1">/* Imprime no arquivo temp o diretorio raiz do programa, depois le o arquivo temp e salva o conteudo na string apontada por dir */</span><span class="sc0">
+</span><span class="sc16">void</span><span class="sc0"> </span><span class="sc11">dir_raiz</span><span class="sc10">(</span><span class="sc16">char</span><span class="sc0"> </span><span class="sc11">dir</span><span class="sc10">[])</span><span class="sc0"> </span><span class="sc10">{</span><span class="sc0">
+    </span><span class="sc11">FILE</span><span class="sc0"> </span><span class="sc10">*</span><span class="sc11">arq</span><span class="sc10">;</span><span class="sc0">
+    </span><span class="sc16">int</span><span class="sc0"> </span><span class="sc11">tam</span><span class="sc10">;</span><span class="sc0">
+    
+    </span><span class="sc11">system</span><span class="sc10">(</span><span class="sc6">"cd &gt; temp"</span><span class="sc10">);</span><span class="sc0">
+    
+    </span><span class="sc11">arq</span><span class="sc0"> </span><span class="sc10">=</span><span class="sc0"> </span><span class="sc11">fopen</span><span class="sc10">(</span><span class="sc6">"temp"</span><span class="sc10">,</span><span class="sc6">"r"</span><span class="sc10">);</span><span class="sc0">
+    </span><span class="sc11">fgets</span><span class="sc10">(</span><span class="sc11">dir</span><span class="sc10">,</span><span class="sc4">99</span><span class="sc10">,</span><span class="sc11">arq</span><span class="sc10">);</span><span class="sc0">
+    </span><span class="sc11">fclose</span><span class="sc10">(</span><span class="sc11">arq</span><span class="sc10">);</span><span class="sc0">
+    </span><span class="sc11">system</span><span class="sc10">(</span><span class="sc6">"del temp"</span><span class="sc10">);</span><span class="sc0">
+
+    </span><span class="sc11">tam</span><span class="sc0"> </span><span class="sc10">=</span><span class="sc0"> </span><span class="sc11">strlen</span><span class="sc10">(</span><span class="sc11">dir</span><span class="sc10">);</span><span class="sc0">
+    </span><span class="sc11">dir</span><span class="sc10">[</span><span class="sc11">tam</span><span class="sc10">-</span><span class="sc4">1</span><span class="sc10">]</span><span class="sc0"> </span><span class="sc10">=</span><span class="sc0"> </span><span class="sc7">'\0'</span><span class="sc10">;</span><span class="sc0"> </span><span class="sc1">/*apagando o \n do final da string*/</span><span class="sc0">
+
+</span><span class="sc10">}</span><span class="sc0">
+
+</span><span class="sc1">/* Percorre o arquivo passada por argumento procurando pela string contida na string palavra. 
+    Quando encontra a string, imprime a linha toda do arquivo */</span><span class="sc0">
+</span><span class="sc16">void</span><span class="sc0"> </span><span class="sc11">printPalavra</span><span class="sc10">(</span><span class="sc16">char</span><span class="sc0"> </span><span class="sc11">arquivo</span><span class="sc10">[],</span><span class="sc0"> </span><span class="sc16">char</span><span class="sc0"> </span><span class="sc11">palavra</span><span class="sc10">[])</span><span class="sc0"> </span><span class="sc10">{</span><span class="sc0">
+    </span><span class="sc16">int</span><span class="sc0"> </span><span class="sc11">c_linha</span><span class="sc10">;</span><span class="sc0">
+    </span><span class="sc16">char</span><span class="sc0"> </span><span class="sc11">linha</span><span class="sc10">[</span><span class="sc4">1000</span><span class="sc10">];</span><span class="sc0">
+    </span><span class="sc11">FILE</span><span class="sc0"> </span><span class="sc10">*</span><span class="sc11">arq</span><span class="sc10">;</span><span class="sc0">
+    
+    </span><span class="sc11">c_linha</span><span class="sc0"> </span><span class="sc10">=</span><span class="sc0"> </span><span class="sc4">0</span><span class="sc10">;</span><span class="sc0">
+    
+    </span><span class="sc11">arq</span><span class="sc0"> </span><span class="sc10">=</span><span class="sc0"> </span><span class="sc11">fopen</span><span class="sc10">(</span><span class="sc11">arquivo</span><span class="sc10">,</span><span class="sc6">"r"</span><span class="sc10">);</span><span class="sc0">
+    </span><span class="sc5">if</span><span class="sc10">(!</span><span class="sc11">arq</span><span class="sc10">)</span><span class="sc0"> </span><span class="sc10">{</span><span class="sc0">
+        </span><span class="sc5">return</span><span class="sc10">;</span><span class="sc0">
+    </span><span class="sc10">}</span><span class="sc0">
+    
+    </span><span class="sc1">/* Laço que percorre por todo o arquivo procurando pela palavra passada por argumento. Quando encontra uma linha com a palavra, ele imprime */</span><span class="sc0">
+    </span><span class="sc5">while</span><span class="sc10">(!</span><span class="sc11">feof</span><span class="sc10">(</span><span class="sc11">arq</span><span class="sc10">))</span><span class="sc0"> </span><span class="sc10">{</span><span class="sc0">
+        </span><span class="sc11">fgets</span><span class="sc10">(</span><span class="sc11">linha</span><span class="sc10">,</span><span class="sc0"> </span><span class="sc4">999</span><span class="sc10">,</span><span class="sc0"> </span><span class="sc11">arq</span><span class="sc10">);</span><span class="sc0">
+        </span><span class="sc11">c_linha</span><span class="sc10">++;</span><span class="sc0">
+        </span><span class="sc5">if</span><span class="sc10">(</span><span class="sc11">strstr</span><span class="sc10">(</span><span class="sc11">linha</span><span class="sc10">,</span><span class="sc11">palavra</span><span class="sc10">))</span><span class="sc0"> </span><span class="sc10">{</span><span class="sc0">
+            </span><span class="sc11">printf</span><span class="sc10">(</span><span class="sc6">"    \tLinha %d: %s"</span><span class="sc10">,</span><span class="sc11">c_linha</span><span class="sc10">,</span><span class="sc11">linha</span><span class="sc10">);</span><span class="sc0">
+        </span><span class="sc10">}</span><span class="sc0">
+    </span><span class="sc10">}</span><span class="sc0">
+    
+</span><span class="sc10">}</span><span class="sc0">
+
+</span><span class="sc1">/* Retorna quantas linhas do arquivo, passado por argumento, a string, apontada pelo ponteiro palavra, é encontrada */</span><span class="sc0">
+</span><span class="sc16">int</span><span class="sc0"> </span><span class="sc11">contaPalavra</span><span class="sc10">(</span><span class="sc16">char</span><span class="sc0"> </span><span class="sc11">arquivo</span><span class="sc10">[],</span><span class="sc0"> </span><span class="sc16">char</span><span class="sc0"> </span><span class="sc11">palavra</span><span class="sc10">[])</span><span class="sc0"> </span><span class="sc10">{</span><span class="sc0">
+    </span><span class="sc16">int</span><span class="sc0"> </span><span class="sc11">conta_linha</span><span class="sc10">;</span><span class="sc0"> </span><span class="sc1">/* conta_linha conta a quantidade de linhas em que a string palavra ocorre */</span><span class="sc0"> 
+    </span><span class="sc16">char</span><span class="sc0"> </span><span class="sc11">linha</span><span class="sc10">[</span><span class="sc4">1000</span><span class="sc10">];</span><span class="sc0">
+    </span><span class="sc11">FILE</span><span class="sc0"> </span><span class="sc10">*</span><span class="sc11">arq</span><span class="sc10">;</span><span class="sc0">
+    
+    </span><span class="sc11">conta_linha</span><span class="sc0"> </span><span class="sc10">=</span><span class="sc0"> </span><span class="sc4">0</span><span class="sc10">;</span><span class="sc0">
+    
+    </span><span class="sc11">arq</span><span class="sc0"> </span><span class="sc10">=</span><span class="sc0"> </span><span class="sc11">fopen</span><span class="sc10">(</span><span class="sc11">arquivo</span><span class="sc10">,</span><span class="sc6">"r"</span><span class="sc10">);</span><span class="sc0">
+    </span><span class="sc5">if</span><span class="sc10">(!</span><span class="sc11">arq</span><span class="sc10">)</span><span class="sc0"> </span><span class="sc10">{</span><span class="sc0">
+        </span><span class="sc5">return</span><span class="sc0"> </span><span class="sc10">-</span><span class="sc4">1</span><span class="sc10">;</span><span class="sc0">
+    </span><span class="sc10">}</span><span class="sc0">
+    
+    </span><span class="sc1">/* Laço que percorre por todo o arquivo procurando pela palavra passada por argumento. Quando encontra uma linha com a palavra, 
+    ele soma 1 na variavel conta_linha */</span><span class="sc0">
+    </span><span class="sc5">while</span><span class="sc10">(!</span><span class="sc11">feof</span><span class="sc10">(</span><span class="sc11">arq</span><span class="sc10">))</span><span class="sc0"> </span><span class="sc10">{</span><span class="sc0">
+        </span><span class="sc11">fgets</span><span class="sc10">(</span><span class="sc11">linha</span><span class="sc10">,</span><span class="sc0"> </span><span class="sc4">999</span><span class="sc10">,</span><span class="sc0"> </span><span class="sc11">arq</span><span class="sc10">);</span><span class="sc0">
+        </span><span class="sc5">if</span><span class="sc10">(</span><span class="sc11">strstr</span><span class="sc10">(</span><span class="sc11">linha</span><span class="sc10">,</span><span class="sc11">palavra</span><span class="sc10">))</span><span class="sc0"> </span><span class="sc10">{</span><span class="sc0">
+            </span><span class="sc11">conta_linha</span><span class="sc10">++;</span><span class="sc0">
+        </span><span class="sc10">}</span><span class="sc0">
+    </span><span class="sc10">}</span><span class="sc0">
+    </span><span class="sc2">//_sleep(300);
+</span><span class="sc0">    </span><span class="sc5">return</span><span class="sc0"> </span><span class="sc11">conta_linha</span><span class="sc10">;</span><span class="sc0">
+</span><span class="sc10">}</span><span class="sc0">
+
+</span><span class="sc1">/* Funcao recursiva que percorre o diretorio "dir_const" e chama a propria find() quando encontra um subdiretorio. 
+    Depois de percorrer o diretorio pela primeira vez, percorre novamente mas agora procurando por arquivos que se encaixam no filtro "arquivo" */</span><span class="sc0">
+</span><span class="sc16">void</span><span class="sc0"> </span><span class="sc11">find</span><span class="sc10">(</span><span class="sc16">char</span><span class="sc0"> </span><span class="sc11">dir_const</span><span class="sc10">[],</span><span class="sc0"> </span><span class="sc16">char</span><span class="sc0"> </span><span class="sc11">arquivo</span><span class="sc10">[],</span><span class="sc0"> </span><span class="sc16">char</span><span class="sc0"> </span><span class="sc11">palavra</span><span class="sc10">[],</span><span class="sc0"> </span><span class="sc16">int</span><span class="sc0"> </span><span class="sc10">*</span><span class="sc11">arqs</span><span class="sc10">,</span><span class="sc0"> </span><span class="sc16">int</span><span class="sc0"> </span><span class="sc10">*</span><span class="sc11">pastas</span><span class="sc10">)</span><span class="sc0"> </span><span class="sc10">{</span><span class="sc0">
+    </span><span class="sc16">long</span><span class="sc0"> </span><span class="sc16">int</span><span class="sc0"> </span><span class="sc11">id</span><span class="sc10">,</span><span class="sc0"> </span><span class="sc11">id_arqs</span><span class="sc10">;</span><span class="sc0">
+    </span><span class="sc16">struct</span><span class="sc0"> </span><span class="sc11">_finddata_t</span><span class="sc0"> </span><span class="sc11">dados_dir</span><span class="sc10">;</span><span class="sc0"> </span><span class="sc1">/* estrutura para percorrer o diretorio procurando por subdiretorios */</span><span class="sc0">
+    </span><span class="sc16">struct</span><span class="sc0"> </span><span class="sc11">_finddata_t</span><span class="sc0"> </span><span class="sc11">dados_arqs</span><span class="sc10">;</span><span class="sc0"> </span><span class="sc1">/* estrutura para percorrer o diretorio procurando por arquivos que se encaixam no filtro "arquivo" */</span><span class="sc0">
+    </span><span class="sc16">char</span><span class="sc0"> </span><span class="sc11">dir_find</span><span class="sc10">[</span><span class="sc4">400</span><span class="sc10">],</span><span class="sc0"> </span><span class="sc11">arqs_find</span><span class="sc10">[</span><span class="sc4">400</span><span class="sc10">],</span><span class="sc0"> </span><span class="sc11">caminho_arquivo</span><span class="sc10">[</span><span class="sc4">400</span><span class="sc10">];</span><span class="sc0">
+    
+    </span><span class="sc1">/* constrói uma string "&lt;diretorio&gt;\*" para listar todos os arquivos e subdiretorios contidos no diretorio */</span><span class="sc0">
+    </span><span class="sc11">strcpy</span><span class="sc10">(</span><span class="sc11">dir_find</span><span class="sc10">,</span><span class="sc11">dir_const</span><span class="sc10">);</span><span class="sc0">
+    </span><span class="sc11">sprintf</span><span class="sc10">(</span><span class="sc11">dir_find</span><span class="sc10">,</span><span class="sc6">"%s\\*"</span><span class="sc10">,</span><span class="sc11">dir_find</span><span class="sc10">);</span><span class="sc0">
+    
+    </span><span class="sc11">id</span><span class="sc0"> </span><span class="sc10">=</span><span class="sc0"> </span><span class="sc11">_findfirst</span><span class="sc10">(</span><span class="sc11">dir_find</span><span class="sc10">,&amp;</span><span class="sc11">dados_dir</span><span class="sc10">);</span><span class="sc0"> 
+    </span><span class="sc5">if</span><span class="sc0"> </span><span class="sc10">(</span><span class="sc11">id</span><span class="sc0"> </span><span class="sc10">==</span><span class="sc0"> </span><span class="sc10">-</span><span class="sc4">1</span><span class="sc10">)</span><span class="sc0"> </span><span class="sc10">{</span><span class="sc0">
+        </span><span class="sc5">return</span><span class="sc10">;</span><span class="sc0">
+    </span><span class="sc10">}</span><span class="sc0">
+    
+    </span><span class="sc1">/* laço que percorre todo o diretorio */</span><span class="sc0">
+    </span><span class="sc5">while</span><span class="sc10">(!</span><span class="sc11">_findnext</span><span class="sc10">(</span><span class="sc11">id</span><span class="sc10">,</span><span class="sc0"> </span><span class="sc10">&amp;</span><span class="sc11">dados_dir</span><span class="sc10">))</span><span class="sc0"> </span><span class="sc10">{</span><span class="sc0">
+        </span><span class="sc5">if</span><span class="sc10">(</span><span class="sc11">dados_dir</span><span class="sc10">.</span><span class="sc11">attrib</span><span class="sc0"> </span><span class="sc10">&amp;</span><span class="sc0"> </span><span class="sc11">_A_SUBDIR</span><span class="sc10">)</span><span class="sc0"> </span><span class="sc10">{</span><span class="sc0"> </span><span class="sc1">/* se o arquivo for um diretorio... */</span><span class="sc0">
+            </span><span class="sc11">sprintf</span><span class="sc10">(</span><span class="sc11">dir_find</span><span class="sc10">,</span><span class="sc6">"%s\\%s"</span><span class="sc10">,</span><span class="sc11">dir_const</span><span class="sc10">,</span><span class="sc11">dados_dir</span><span class="sc10">.</span><span class="sc11">name</span><span class="sc10">);</span><span class="sc0"> </span><span class="sc1">/* adiciona ao final do diretorio o nome do subdiretorio encontrado, 
+                                                                        p/ poder percorrer esse subdiretorio */</span><span class="sc0">             
+            </span><span class="sc5">if</span><span class="sc10">(</span><span class="sc11">dir_find</span><span class="sc10">[</span><span class="sc11">strlen</span><span class="sc10">(</span><span class="sc11">dir_find</span><span class="sc10">)-</span><span class="sc4">1</span><span class="sc10">]</span><span class="sc0"> </span><span class="sc10">!=</span><span class="sc0"> </span><span class="sc7">'.'</span><span class="sc10">)</span><span class="sc0"> </span><span class="sc10">{</span><span class="sc0"> </span><span class="sc1">/* condicao para nao entrar no diretorio "." e nem no ".." */</span><span class="sc0"> 
+                </span><span class="sc10">(*</span><span class="sc11">pastas</span><span class="sc10">)++;</span><span class="sc0"> </span><span class="sc1">/* conta mais uma pasta percorrida */</span><span class="sc0">
+                </span><span class="sc11">find</span><span class="sc10">(</span><span class="sc11">dir_find</span><span class="sc10">,</span><span class="sc11">arquivo</span><span class="sc10">,</span><span class="sc11">palavra</span><span class="sc10">,</span><span class="sc11">arqs</span><span class="sc10">,</span><span class="sc11">pastas</span><span class="sc10">);</span><span class="sc0"> </span><span class="sc1">/* chamando ela mesma para percorrer o subdiretorio encontrado */</span><span class="sc0"> 
+                
+                </span><span class="sc11">sprintf</span><span class="sc10">(</span><span class="sc11">arqs_find</span><span class="sc10">,</span><span class="sc6">"%s\\%s"</span><span class="sc10">,</span><span class="sc11">dir_find</span><span class="sc10">,</span><span class="sc11">arquivo</span><span class="sc10">);</span><span class="sc0"> </span><span class="sc1">/* adicionando o filtro "arquivo" para listar somente os arquivos */</span><span class="sc0">
+                </span><span class="sc11">id_arqs</span><span class="sc0"> </span><span class="sc10">=</span><span class="sc0"> </span><span class="sc11">_findfirst</span><span class="sc10">(</span><span class="sc11">arqs_find</span><span class="sc10">,&amp;</span><span class="sc11">dados_arqs</span><span class="sc10">);</span><span class="sc0">
+                
+                </span><span class="sc1">/* laço que percorre todo o diretorio */</span><span class="sc0">
+                </span><span class="sc5">while</span><span class="sc10">(!</span><span class="sc11">_findnext</span><span class="sc10">(</span><span class="sc11">id_arqs</span><span class="sc10">,</span><span class="sc0"> </span><span class="sc10">&amp;</span><span class="sc11">dados_arqs</span><span class="sc10">))</span><span class="sc0"> </span><span class="sc10">{</span><span class="sc0">
+                    </span><span class="sc5">if</span><span class="sc10">(!(</span><span class="sc11">dados_arqs</span><span class="sc10">.</span><span class="sc11">attrib</span><span class="sc0"> </span><span class="sc10">&amp;</span><span class="sc0"> </span><span class="sc11">_A_SUBDIR</span><span class="sc10">))</span><span class="sc0"> </span><span class="sc10">{</span><span class="sc0"> </span><span class="sc1">/* se o arquivo não for um diretorio... */</span><span class="sc0">
+                        </span><span class="sc10">(*</span><span class="sc11">arqs</span><span class="sc10">)++;</span><span class="sc0"> </span><span class="sc1">/* conta como mais um arquivo analisado */</span><span class="sc0">
+                        </span><span class="sc5">if</span><span class="sc10">(</span><span class="sc11">strcmp</span><span class="sc10">(</span><span class="sc11">palavra</span><span class="sc10">,</span><span class="sc6">""</span><span class="sc10">)</span><span class="sc0"> </span><span class="sc10">!=</span><span class="sc0"> </span><span class="sc4">0</span><span class="sc10">)</span><span class="sc0"> </span><span class="sc10">{</span><span class="sc0">
+                            </span><span class="sc11">sprintf</span><span class="sc10">(</span><span class="sc11">caminho_arquivo</span><span class="sc10">,</span><span class="sc6">"%s\\%s"</span><span class="sc10">,</span><span class="sc11">dir_find</span><span class="sc10">,</span><span class="sc11">dados_arqs</span><span class="sc10">.</span><span class="sc11">name</span><span class="sc10">);</span><span class="sc0"> </span><span class="sc1">/* cria o caminho completo para o arquivo, 
+                                                                                            p/ poder chamar a funcao que vai percorrer esse arquivo */</span><span class="sc0">
+                            </span><span class="sc11">printf</span><span class="sc10">(</span><span class="sc6">"Analisando: %-20s em %s (%d)\n"</span><span class="sc10">,</span><span class="sc11">dados_arqs</span><span class="sc10">.</span><span class="sc11">name</span><span class="sc10">,</span><span class="sc11">dir_find</span><span class="sc10">,</span><span class="sc11">strlen</span><span class="sc10">(</span><span class="sc11">dir_find</span><span class="sc10">));</span><span class="sc0">                     
+
+                            </span><span class="sc11">_sleep</span><span class="sc10">(</span><span class="sc4">500</span><span class="sc10">);</span><span class="sc0">
+                            </span><span class="sc5">if</span><span class="sc10">(</span><span class="sc11">strlen</span><span class="sc10">(</span><span class="sc11">dir_find</span><span class="sc10">)</span><span class="sc0"> </span><span class="sc10">&gt;</span><span class="sc0"> </span><span class="sc4">44</span><span class="sc10">)</span><span class="sc0"> </span><span class="sc10">{</span><span class="sc0">
+                                </span><span class="sc11">gotoxy</span><span class="sc10">(</span><span class="sc4">1</span><span class="sc10">,</span><span class="sc11">wherey</span><span class="sc10">()-</span><span class="sc4">2</span><span class="sc10">);</span><span class="sc0">
+                            </span><span class="sc10">}</span><span class="sc5">else</span><span class="sc0"> </span><span class="sc10">{</span><span class="sc0">
+                                </span><span class="sc11">gotoxy</span><span class="sc10">(</span><span class="sc4">1</span><span class="sc10">,</span><span class="sc11">wherey</span><span class="sc10">()-</span><span class="sc4">1</span><span class="sc10">);</span><span class="sc0">
+                            </span><span class="sc10">}</span><span class="sc0">
+                            </span><span class="sc11">_sleep</span><span class="sc10">(</span><span class="sc4">500</span><span class="sc10">);</span><span class="sc0">
+                            </span><span class="sc5">if</span><span class="sc10">(</span><span class="sc11">contaPalavra</span><span class="sc10">(</span><span class="sc11">caminho_arquivo</span><span class="sc10">,</span><span class="sc11">palavra</span><span class="sc10">)</span><span class="sc0"> </span><span class="sc10">&gt;</span><span class="sc0"> </span><span class="sc4">0</span><span class="sc10">)</span><span class="sc0"> </span><span class="sc10">{</span><span class="sc0"> </span><span class="sc1">/* se a quantidade de linhas contendo a string "palavra" for &gt; 0... */</span><span class="sc0">
+                                </span><span class="sc2">//gotoxy(1,wherey()-1); /* sobe o cursor uma linha, para escrever em cima de "Analisando..." */
+</span><span class="sc0">                                </span><span class="sc11">printf</span><span class="sc10">(</span><span class="sc6">"Encontrado: %-20s em %s\n"</span><span class="sc10">,</span><span class="sc11">dados_arqs</span><span class="sc10">.</span><span class="sc11">name</span><span class="sc10">,</span><span class="sc11">dir_find</span><span class="sc10">);</span><span class="sc0"> 
+                                </span><span class="sc11">printPalavra</span><span class="sc10">(</span><span class="sc11">caminho_arquivo</span><span class="sc10">,</span><span class="sc11">palavra</span><span class="sc10">);</span><span class="sc0"> </span><span class="sc1">/* chama funcao que imprime todas as linhas contendo a string "palavra" */</span><span class="sc0">
+                                </span><span class="sc11">printf</span><span class="sc10">(</span><span class="sc6">"\n"</span><span class="sc10">);</span><span class="sc0">
+                            </span><span class="sc10">}</span><span class="sc0">
+                        </span><span class="sc10">}</span><span class="sc5">else</span><span class="sc0"> </span><span class="sc10">{</span><span class="sc0">
+                            </span><span class="sc11">printf</span><span class="sc10">(</span><span class="sc6">"%-30s em %s\n"</span><span class="sc10">,</span><span class="sc11">dados_arqs</span><span class="sc10">.</span><span class="sc11">name</span><span class="sc10">,</span><span class="sc11">dir_find</span><span class="sc10">);</span><span class="sc0">
+                        </span><span class="sc10">}</span><span class="sc0">
+                    </span><span class="sc10">}</span><span class="sc0">
+                </span><span class="sc10">}</span><span class="sc0">
+            </span><span class="sc10">}</span><span class="sc0">               
+        </span><span class="sc10">}</span><span class="sc0">
+    </span><span class="sc10">}</span><span class="sc0">
+        
+    </span><span class="sc11">_findclose</span><span class="sc10">(</span><span class="sc11">id</span><span class="sc10">);</span><span class="sc0">
+
+</span><span class="sc10">}</span><span class="sc0">
+</span></div></body>
+</html>

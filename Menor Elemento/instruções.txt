@@ -1,0 +1,6 @@
+Para compilar:
+> gcc -o main main.c funcs.c -Wall -pedantic
+
+Para executar:
+> main
+> [qntd de numeros] [numeros da lista:]

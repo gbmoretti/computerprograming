@@ -1,0 +1,5 @@
+Compilacao:
+> gcc -o pong pong.c conio_v3.c -Wall
+
+Execução
+> pong

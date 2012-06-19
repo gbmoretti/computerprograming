@@ -1,0 +1,5 @@
+Para compilar:
+> gcc -o main main.c libavl.a -Wall -pedantic
+
+Para executar:
+> main
